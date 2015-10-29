@@ -541,14 +541,26 @@ LWS_VISIBLE int libwebsockets_serve_http_file_fragment(
 			libwebsocket_set_timeout(wsi, PENDING_TIMEOUT_HTTP_CONTENT, AWAITING_TIMEOUT);
 			wsi->u.http.filepos += n;
 			m = libwebsocket_write(wsi, context->service_buffer, n,
-					       wsi->u.http.filepos == wsi->u.http.filelen ? LWS_WRITE_HTTP_FINAL : LWS_WRITE_HTTP);
+				wsi->u.http.filepos == wsi->u.http.filelen ? LWS_WRITE_HTTP_FINAL : LWS_WRITE_HTTP);
 			if (m < 0)
 				return -1;
-
+#ifdef WINRT
+			if (m != n)
+			{
+				/* adjust for what was not sent */
+				LARGE_INTEGER t;
+				t.QuadPart = (LONGLONG) (m - n);
+				if(SetFilePointerEx(wsi->u.http.fd, t, NULL, 1) < 0)
+				{
+					return -1;
+				}
+			}
+#else
 			if (m != n)
 				/* adjust for what was not sent */
 				if (compatible_file_seek_cur(wsi->u.http.fd, m - n) < 0)
 					return -1;
+#endif
 		}
 all_sent:
 		if (!wsi->truncated_send_len &&
