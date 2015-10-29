@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 
+if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
+  cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+  #Required to resolve linker error issues due to incompatibility with CMake v3.0+ policies.
+  #CMake fails to find _fseeko() which leads to subsequent linker error.
+  #See details here: http://www.cmake.org/Wiki/CMake/Policies
+  cmake_policy(VERSION 2.8)
+endif()
+
 if(NOT DEFINED CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 endif()
@@ -211,6 +219,10 @@ endif()
 
 if (MINGW)
 	set(LWS_MINGW_SUPPORT 1)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
+  set(WINRT 1)
 endif()
 
 include_directories("${PROJECT_BINARY_DIR}")
@@ -478,7 +490,7 @@ if (LWS_WITH_SHARED)
 	# not "libwebsocket_shared".
 	set_target_properties(websockets_shared
 		PROPERTIES
-		OUTPUT_NAME websockets)
+		OUTPUT_NAME libwebsockets)
 
 	if (WIN32)
 		# Compile as DLL (export function declarations)
@@ -1007,6 +1019,9 @@ message(" LWS_WITHOUT_DAEMONIZE = ${LWS_WITHOUT_DAEMONIZE}")
 message(" LWS_USE_LIBEV = ${LWS_USE_LIBEV}")
 message(" LWS_IPV6 = ${LWS_IPV6}")
 message(" LWS_WITH_HTTP2 = ${LWS_WITH_HTTP2}")
+message(" WINRT = ${WINRT}")
+message(" CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
+message(" CMAKE_SYSTEM_VERSION = ${CMAKE_SYSTEM_VERSION}")
 message("---------------------------------------------------------------------")
 
 # These will be available to parent projects including libwebsockets using add_subdirectory()
