@@ -56,7 +56,18 @@
 
 #define compatible_close(fd) closesocket(fd)
 #define compatible_file_close(fd) CloseHandle(fd)
+#ifdef WINRT
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define compatible_file_seek_cur(fd, offset) {\
+    LARGE_INTEGER t;\
+    t.QuadPart = (LONGLONG) offset;\
+    SetFilePointerEx(fd, t, NULL, 1);\
+}
+#else
 #define compatible_file_seek_cur(fd, offset) SetFilePointer(fd, offset, NULL, FILE_CURRENT)
+#endif
+
 #define compatible_file_read(amount, fd, buf, len) {\
 	DWORD _amount; \
 	if (!ReadFile(fd, buf, len, &_amount, NULL)) \
@@ -71,7 +82,17 @@
 #ifdef LWS_HAVE_IN6ADDR_H
 #include <in6addr.h>
 #endif
+#ifdef WINRT
+struct tcp_keepalive {
+    ULONG onoff;
+    ULONG keepalivetime;
+    ULONG keepaliveinterval;
+};
+#define SIO_KEEPALIVE_VALS  _WSAIOW(IOC_VENDOR,4)
+#else
 #include <mstcpip.h>
+#endif
+
 
 #ifndef __func__
 #define __func__ __FUNCTION__

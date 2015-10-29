@@ -387,6 +387,31 @@ lws_plat_change_pollfd(struct libwebsocket_context *context,
 	return 1;
 }
 
+
+#ifdef WINRT
+DWORD WINAPI WinRT_GetFileSize(const char* filename)
+{
+    struct stat info;
+    // Get data associated with "crt_stat.c":
+    int result = stat(filename, &info);
+
+    // Check if statistics are valid:
+    if (result != 0)
+    {
+        // Failed
+        return -1;
+    }
+    else
+    {
+        return (long) (info.st_size);
+    }
+
+
+}
+
+#endif
+
+
 LWS_VISIBLE HANDLE
 lws_plat_open_file(const char* filename, unsigned long* filelen)
 {
@@ -395,11 +420,16 @@ lws_plat_open_file(const char* filename, unsigned long* filelen)
 
 	MultiByteToWideChar(CP_UTF8, 0, filename, -1, buffer,
 				sizeof(buffer) / sizeof(buffer[0]));
+#ifdef WINRT
+    ret = CreateFile2(buffer, GENERIC_READ, FILE_SHARE_READ,OPEN_EXISTING, NULL);
+    if (ret != LWS_INVALID_FILE)
+        *filelen = WinRT_GetFileSize(filename);
+#else
 	ret = CreateFileW(buffer, GENERIC_READ, FILE_SHARE_READ,
 				NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (ret != LWS_INVALID_FILE)
-		*filelen = GetFileSize(ret, NULL);
+    if (ret != LWS_INVALID_FILE)
+        *filelen = GetFileSize(ret, NULL);
+#endif
 
 	return ret;
 }

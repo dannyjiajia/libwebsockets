@@ -1,5 +1,10 @@
 #include <time.h>
 #include <windows.h> //I've omitted context line
+#include <lws_config.h>
+
+#ifdef WINRT
+#include <winsock2.h>
+#endif
 
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
   #define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
@@ -40,10 +45,12 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 	}
  
 	if (NULL != tz) {
+#ifndef WINRT
 		if (!tzflag) {
 			_tzset();
 			tzflag++;
 		}
+#endif
 		tz->tz_minuteswest = _timezone / 60;
 		tz->tz_dsttime = _daylight;
 	}
