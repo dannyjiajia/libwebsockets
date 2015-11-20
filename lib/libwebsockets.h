@@ -123,7 +123,8 @@ LWS_VISIBLE LWS_EXTERN void _lws_log(int filter, const char *format, ...);
 LWS_VISIBLE LWS_EXTERN void _lws_logv(int filter, const char *format, va_list vl);
 
 /* notice, warn and log are always compiled in */
-#define lwsl_notice(...) _lws_log(LLL_NOTICE, __VA_ARGS__)
+//dannyhe fix lwsl_notice
+// #define lwsl_notice(...) _lws_log(LLL_NOTICE, __VA_ARGS__)
 #define lwsl_warn(...) _lws_log(LLL_WARN, __VA_ARGS__)
 #define lwsl_err(...) _lws_log(LLL_ERR, __VA_ARGS__)
 /*
@@ -132,7 +133,8 @@ LWS_VISIBLE LWS_EXTERN void _lws_logv(int filter, const char *format, va_list vl
  *  active
  */
 #ifdef _DEBUG
-
+ //dannyhe
+#define lwsl_notice(...) _lws_log(LLL_NOTICE, __VA_ARGS__)
 #define lwsl_info(...) _lws_log(LLL_INFO, __VA_ARGS__)
 #define lwsl_debug(...) _lws_log(LLL_DEBUG, __VA_ARGS__)
 #define lwsl_parser(...) _lws_log(LLL_PARSER, __VA_ARGS__)
@@ -143,7 +145,8 @@ LWS_VISIBLE LWS_EXTERN void _lws_logv(int filter, const char *format, va_list vl
 LWS_VISIBLE LWS_EXTERN void lwsl_hexdump(void *buf, size_t len);
 
 #else /* no debug */
-
+//dannyhe
+#define lwsl_notice(...) 
 #define lwsl_info(...)
 #define lwsl_debug(...)
 #define lwsl_parser(...)
