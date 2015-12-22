@@ -8,6 +8,15 @@ if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsSt
   cmake_policy(VERSION 2.8)
 endif()
 
+if(CMAKE_SYSTEM_VERSION MATCHES 10.0)
+  message("we need cmake 3.4 to build uwp project")
+  cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
+  #Required to resolve linker error issues due to incompatibility with CMake v3.0+ policies.
+  #CMake fails to find _fseeko() which leads to subsequent linker error.
+  #See details here: http://www.cmake.org/Wiki/CMake/Policies
+  cmake_policy(VERSION 2.8)
+endif()
+
 if(NOT DEFINED CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 endif()
